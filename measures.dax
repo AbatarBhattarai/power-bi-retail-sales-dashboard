@@ -1,0 +1,100 @@
+// ============================================================
+// DAX measures for the Retail Sales Dashboard
+// Table name used below: 'Orders' (rename your table to Orders
+// in Power BI, or replace 'Orders' with your table's name).
+// The revenue column is called: revenue
+// The date column is called:   order_date
+//
+// HOW TO ADD A MEASURE (same steps every time):
+//   1. In the Fields pane (right side), right-click the Orders table.
+//   2. Click "New measure".
+//   3. Delete what is in the formula bar, type ONE measure below
+//      (the part after the // comments), and press Enter.
+//   4. Repeat for each measure. They will show up in the Fields
+//      pane with a small calculator icon.
+// ============================================================
+
+
+// ---------- 1. Total Revenue ----------
+// Adds up the revenue column. Because it is a measure (not a
+// column), it reacts to slicers: filter to "Clothing" and this
+// number becomes Clothing revenue only.
+
+Total Revenue = SUM ( Orders[revenue] )
+
+
+// ---------- 2. Total Orders ----------
+// Counts the order rows. Every row in the data is one order,
+// so a simple row count works.
+
+Total Orders = COUNTROWS ( Orders )
+
+
+// ---------- 3. Average Order Value ----------
+// Total money divided by number of orders.
+// DIVIDE is used instead of "/" because DIVIDE safely returns
+// blank instead of an error if orders are ever zero.
+
+Average Order Value = DIVIDE ( [Total Revenue], [Total Orders] )
+
+
+// ---------- 4. Category Revenue Share (%) ----------
+// This one is used INSIDE the category bar chart.
+// CALCULATE + ALL removes the category filter for the
+// denominator only, so each bar is divided by the grand total.
+// Example: Clothing shows about 31.2%.
+
+Category Share % =
+DIVIDE (
+    [Total Revenue],
+    CALCULATE ( [Total Revenue], ALL ( Orders[category] ) )
+)
+
+
+// ---------- 5. Month-over-Month Revenue Change (%) ----------
+// Compares this month's revenue with last month's.
+// DATEADD shifts the dates back 1 month to get "last month".
+// The monthly line chart needs the MonthStart column described
+// at the bottom of this file for this measure to work.
+// Example: November 2024 shows +73.2% (it jumped to $14,948.60).
+
+Revenue Last Month =
+CALCULATE ( [Total Revenue], DATEADD ( Orders[MonthStart], -1, MONTH ) )
+
+MoM Revenue Change % =
+DIVIDE ( [Total Revenue] - [Revenue Last Month], [Revenue Last Month] )
+
+
+// ---------- 6. Best Month Revenue ----------
+// The highest single month of revenue in the data.
+// In this dashboard it returns $14,948.60 (November 2024).
+// SUMMARIZE groups revenue by month first, then MAXX picks
+// the largest monthly value.
+
+Best Month Revenue =
+MAXX (
+    SUMMARIZE ( Orders, Orders[MonthStart], "MonthlyRevenue", [Total Revenue] ),
+    [MonthlyRevenue]
+)
+
+
+// ============================================================
+// DATE COLUMNS AND THE DATE TABLE NOTE
+// ============================================================
+// This dashboard only covers one year (Jan-Dec 2024), so a
+// simple helper column is enough instead of a full date table:
+//
+//   1. In the Fields pane, right-click Orders -> "New column".
+//   2. Name it MonthStart and use:
+//        MonthStart = DATE ( YEAR ( Orders[order_date] ), MONTH ( Orders[order_date] ), 1 )
+//      This turns every order date into the 1st of its month,
+//      which is what the line chart axis and the MoM measure use.
+//   3. Also make a label column so the chart shows "Jan", "Feb"...:
+//        MonthName = FORMAT ( Orders[MonthStart], "mmm" )
+//
+// NOTE for bigger projects: when data spans more than one year,
+// the proper way is a separate calendar ("date") table with one
+// row per day, marked as the date table, and related to
+// Orders[order_date]. The MoM measure above would then use the
+// date table's date column instead of Orders[MonthStart].
+// ============================================================
