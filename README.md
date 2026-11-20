@@ -2,6 +2,31 @@
 
 By Abatar Bhattarai — CIS student at East Texas A&M, graduating May 2027
 
+## Business question
+
+Can a store's sales numbers be put in front of a manager as one interactive page — so they can filter by category, region, and channel and see the answer immediately, instead of working through static tables?
+
+## Data
+
+The cleaned retail dataset from my Retail Sales Analysis project: 1,200 orders from 2024 (practice data I created for that project, not real store sales).
+
+## What I did
+
+- Rebuilt my Python/SQL/Excel retail analysis as a one-page Power BI dashboard: KPI cards (total revenue, total orders, average order value), revenue by category, revenue by region, a monthly revenue trend for 2024, and a channel split
+- Wrote all calculations as DAX measures — total revenue, total orders, average order value, category share of revenue, revenue last month, month-over-month revenue change, and best-month revenue (full set in `measures.dax`)
+- Added category, region, and channel slicers that filter every visual on the page at once
+- Used measures rather than calculated columns so totals recalculate correctly under any slicer selection, and `DIVIDE` instead of `/` so filtered views with no orders show blank instead of an error
+
+## Key finding
+
+**Total revenue: $118,568.75 from 1,200 orders** (average order value $98.81). Clothing led categories at $37,046.85 (31.2% of revenue), the West was the top region at $30,138.80, and November 2024 was the best month at $14,948.60 — up 73.2% from October. Sales split almost evenly between In-Store ($59,286.50) and Online ($59,282.25).
+
+## Recommendation
+
+Plan around the pattern the dashboard makes obvious: Clothing and the November peak deserve the stock and promotion focus, and since in-store and online revenue are nearly equal, neither channel should be treated as the minor one.
+
+---
+
 ![Retail Sales Dashboard](dashboard.png)
 
 ## What I found
